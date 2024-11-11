@@ -21,4 +21,8 @@
     # any module necessary for this one to work correctly
     'depends': ['sale','account'],
 
+    'data':[
+        'views/account_move.xml'
+    ]
+
 }

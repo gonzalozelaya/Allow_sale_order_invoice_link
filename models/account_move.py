@@ -4,9 +4,19 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 class AllowSaleOrderLink(models.Model):
     _inherit = 'account.move'
-    
-    @api.onchange('invoice_origin')
-    def _onchange_invoice_origin(self):
+
+    link_order = fields.Boolean('Vincular orden',defautl=False)
+
+    def action_post(self):
+        # Llamar al método original para confirmar la factura
+        result = super(AllowSaleOrderLink, self).action_post()
+        if self.link_order:
+            # Ejecutar la acción personalizada después de confirmar la factura
+            self._link_sale_order()
+        
+        return result
+        
+    def _link_sale_order(self):
         for move in self:
             if move.move_type != 'out_invoice':
                 return
@@ -33,8 +43,7 @@ class AllowSaleOrderLink(models.Model):
                             new_sale_order_line = sale_order.order_line.create({
                                 'order_id': sale_order.id,
                                 'product_id': line.product_id.id,
-                                'qty_invoiced': line.quantity,
-                                'product_uom_qty': 0,
+                                'qty_invoiced': line.quantity if move.state == 'posted' else 0,                                'product_uom_qty': 0,
                                 'price_unit': line.price_unit,
                                 'name': line.name,
                             })
