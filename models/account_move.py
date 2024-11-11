@@ -8,6 +8,8 @@ class AllowSaleOrderLink(models.Model):
     @api.onchange('invoice_origin')
     def _onchange_invoice_origin(self):
         for move in self:
+            if move.move_type != 'out_invoice':
+                return
             if move.invoice_origin:
                 if move.sale_order_count >= 1:
                     raise UserError('Esta factura ya tiene una orden asociada')
