@@ -10,7 +10,7 @@ class AllowSaleOrderLink(models.Model):
     order_origin = fields.Many2many(
     'sale.order',
     string='Órdenes a vincular',
-    domain="[('partner_id', '=', partner_id), ('order_type', '=', 'anticipada')]",
+    domain="[('partner_id', '=', partner_id)]",
 )
 
     def action_post(self):
