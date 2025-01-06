@@ -7,10 +7,10 @@ class AllowSaleOrderLink(models.Model):
 
     link_order = fields.Boolean('Vincular orden',default=False)
     
-    order_origin = fields.Many2one(
+    order_origin = fields.Many2many(
     'sale.order',
-    string='Orden a vincular',
-    domain = "['&',('partner_id','=', partner_id),('order_type','=','anticipada')]",
+    string='Órdenes a vincular',
+    domain="[('partner_id', '=', partner_id), ('order_type', '=', 'anticipada')]",
 )
 
     def action_post(self):
@@ -27,8 +27,8 @@ class AllowSaleOrderLink(models.Model):
             if move.order_origin:
                 if move.sale_order_count >= 1:
                     raise UserError('Esta factura ya tiene una orden asociada')
-                sale_order = move.order_origin
-                if sale_order:
+                sale_orders = move.order_origin
+                for sale_order in sale_orders:
                     if move.partner_id.id != sale_order.partner_id.id:
                         raise UserError('El Cliente debe ser el mismo que en la orden de venta')
                     for line in move.invoice_line_ids:
@@ -49,7 +49,8 @@ class AllowSaleOrderLink(models.Model):
                             new_sale_order_line = sale_order.order_line.create({
                                 'order_id': sale_order.id,
                                 'product_id': line.product_id.id,
-                                'qty_invoiced': line.quantity if move.state == 'posted' else 0,                                'product_uom_qty': 0,
+                                'qty_invoiced': line.quantity if move.state == 'posted' else 0,                       
+                                'product_uom_qty': 0,
                                 'price_unit': line.price_unit,
                                 'name': line.name,
                                 'product_uom_qty': line.quantity if move.state == 'posted' else 0
@@ -58,4 +59,3 @@ class AllowSaleOrderLink(models.Model):
                             new_sale_order_line.write({
                                 'invoice_lines': [(4, line._origin.id)]
                             })
-

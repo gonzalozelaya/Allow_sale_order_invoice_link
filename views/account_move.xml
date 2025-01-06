@@ -8,8 +8,8 @@
             <field name="arch" type="xml">
                 <!-- Insertar el nuevo campo después del campo de la referencia interna, por ejemplo -->
                 <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                    <field name="link_order" invisible="sale_order_count > 0 or move_type != 'out_invoice' or state == 'posted'"/>
-                    <field name="order_origin" invisible="not link_order" readonly="state == 'posted'"/>
+                    <field name="link_order" invisible="sale_order_count > 0 or move_type != 'out_invoice'"/>
+                    <field name="order_origin" invisible="not link_order" widget="many2many_tags"/>
                 </xpath>
             </field>
         </record>
